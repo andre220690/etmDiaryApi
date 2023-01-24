@@ -5,7 +5,9 @@ namespace etmDiaryApi.Models
     public class Task
     {
         public int Id { get; set; }
+        [Column(TypeName = "DATE")]
         public DateTime Start { get; set; }
+        [Column(TypeName = "DATE")]
         public DateTime End { get; set; }
         public int Priority { get; set; }
         [Column(TypeName = "TEXT")]

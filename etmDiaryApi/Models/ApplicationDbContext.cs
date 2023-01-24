@@ -32,7 +32,124 @@ namespace etmDiaryApi.Models
             //Здесь заполнение БД
             Database.EnsureDeleted();
             Database.EnsureCreated();
-            Console.WriteLine("DB Created");
+
+            Department op1 = new Department { Name = "ОП-1 Екатеринбург" };
+            Department op2 = new Department { Name = "ОП-2 Нижневартовск" };
+
+            User user1 = new User { UserName = "Попов В.В.", isSupervisor = false, Department = op1, Login="popov_vv" };
+            User user2 = new User { UserName = "Баранов А.А.", isSupervisor = false, Department = op1, Login = "baranov_vv" };
+            User user3 = new User { UserName = "Козлов Н.Н", isSupervisor = true, Department = op1, Login = "kozlov_nn" };
+            User user4 = new User { UserName = "Васильев К.К", isSupervisor= false, Department = op2, Login = "vasilev_kk" };
+            User user5 = new User { UserName = "Петров Д.Д.", isSupervisor = false, Department = op2, Login = "petrov_dd" };
+
+            Partner part1 = new Partner { Name = "ООО Восход" };
+            Partner part2 = new Partner { Name = "ИП Пупкин Г.Н" };
+            Partner part3 = new Partner { Name = "ООО Электромкомплект" };
+
+            Theme theme1 = new Theme { Name = "Освоение потенциала клиента" };
+            Theme theme2 = new Theme { Name = "Работа с ДЗ" };
+
+            Condition cond1 = new Condition { Name = "Выполнено. Успех" };
+            Condition cond2 = new Condition { Name = "Выполнено. Неудачно" };
+            Condition cond3 = new Condition { Name = "Назначено" };
+            Condition cond4 = new Condition { Name = "Просрочено" };
+
+            Board board1 = new Board { Sample = "Сделать;В процессе;Выполнено" };
+            Board board2 = new Board { Sample = "Сделать;Отправить предложение;Получена ОС;Выполнено" };
+
+            Task task1 = new Task { Start = new DateTime(2023, 1, 1)
+                , End = new DateTime(2023,1, 31)
+                , Board=board2
+                , Condition = cond3
+                , Priority = 1
+                , Theme = theme1
+                , Partner = part1
+                , User = user1
+                , Description = "Заведение новой продукции в ассортимент клиента"};
+            Task task2 = new Task { Start = new DateTime(2022, 12, 15)
+                , End = new DateTime(2023, 2, 16)
+                , Board=board1
+                , Condition = cond3
+                , Priority = 2
+                , Theme = theme2
+                , Partner = part2
+                , User = user1
+                , Description = "Отгрузить клиента"};
+            Task task3 = new Task { Start = new DateTime(2023, 1, 16)
+                , End = new DateTime(2023,2, 28)
+                , Board=board1
+                , Condition = cond3
+                , Priority = 1
+                , Theme = theme1
+                , Partner = part3
+                , User = user2
+                , Description = "Получить документацию по проекту"};
+            Task task4 = new Task { Start = new DateTime(2023, 1, 31)
+                , End = new DateTime(2023,1, 31)
+                , Board=board1
+                , Condition = cond3
+                , Priority = 3
+                , Theme = theme2
+                , Partner = part2
+                , User = user4
+                , Description = "Договорится об опате задолженности"};
+
+            Stick stick1 = new Stick { User = user1
+                , Board = board2
+                , Date = new DateTime(2023, 1, 15)
+                , Description = "Предложение по арматуре"
+                , Status = 1
+                , Task = task1};
+            Stick stick2 = new Stick { User = user1
+                , Board = board2
+                , Date = new DateTime(2023, 1, 19)
+                , Description = "Предложение по кабелю"
+                , Status = 0
+                , Task = task1};
+            Stick stick3 = new Stick { User = user4
+                , Board = board1
+                , Date = new DateTime(2023, 1, 31)
+                , Description = "Передать претензию клиенту"
+                , Status = 2
+                , Task = task4};
+            Stick stick4 = new Stick { User = user1
+                , Board = board1
+                , Date = new DateTime(2023, 1, 15)
+                , Description = "Составить план развития"
+                , Status = 0};
+            Stick stick5 = new Stick { User = user1
+                , Board = board1
+                , Date = new DateTime(2023, 1, 15)
+                , Description = "Заполнить отчет"
+                , Status = 1};
+
+            FavoritSticks fs1 = new FavoritSticks { User = user1, Stick = stick1 };
+            FavoritSticks fs2 = new FavoritSticks { User = user3, Stick = stick2 };
+            FavoritSticks fs3 = new FavoritSticks { User = user3, Stick = stick4 };
+
+            FavoritTasks ft1 = new FavoritTasks { User = user1, Task = task1 };
+            FavoritTasks ft2 = new FavoritTasks { User = user3, Task = task3 };
+
+            Departments.AddRange(op1, op2);
+            Users.AddRange(user1, user2, user3, user4, user5);
+            Partners.AddRange(part1, part2, part3);
+            Themes.AddRange(theme1, theme2);
+            Conditions.AddRange(cond1, cond2, cond3, cond4);
+            Boards.AddRange(board1, board2);
+
+            SaveChanges();
+
+            Tasks.AddRange(task1, task2, task3, task4);
+            Sticks.AddRange(stick1, stick2, stick3, stick4, stick5);
+
+            SaveChanges();
+
+            FavoritSticks.AddRange(fs1, fs2, fs3);
+            FavoritTasks.AddRange(ft1, ft2);
+
+            SaveChanges();
+            Console.WriteLine("Данные внесены");
+
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
