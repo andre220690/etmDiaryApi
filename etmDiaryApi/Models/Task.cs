@@ -10,14 +10,11 @@ namespace etmDiaryApi.Models
         [Column(TypeName = "DATE")]
         public DateTime End { get; set; }
         public int Priority { get; set; }
-        [Column(TypeName = "TEXT")]
         public string Description { get; set; }
-        [Column(TypeName = "TEXT")]
         public string? Result { get; set; }
-        [Column(TypeName = "TEXT")]
         public string? History { get; set; }
         public int ThemeId { get; set; }
-        public Theme Theme { get; set; }
+        public Theme? Theme { get; set; }
         public int PartnerId { get; set; }
         public Partner? Partner { get; set; }
         public int? UserId { get; set; }
@@ -28,7 +25,7 @@ namespace etmDiaryApi.Models
         public Board Board { get; set; }
         public List<Stick> Sticks { get; set; }
         public List<User> Users { get; set; }
-        public int FavoritTasksId { get; set; }
-        public List<FavoritTasks> FavoritTasks { get; set; } = new();
+        //public int FavoritTasksId { get; set; }
+        public List<FavoritTasks> FavoritTasks { get; set; }
     }
 }

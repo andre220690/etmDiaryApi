@@ -21,7 +21,7 @@ namespace etmDiaryApi.Controllers
             this.db = db;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet(Name = "GetWeatherForecastttt")]
         public void Get()
         {
             Console.WriteLine("Get");

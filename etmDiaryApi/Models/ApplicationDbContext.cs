@@ -21,26 +21,33 @@ namespace etmDiaryApi.Models
                 .HasOne(c => c.User)
                 .WithMany(c => c.Sticks);//???????
 
-            modelBuilder.Entity<Task>()
-                .HasOne(c => c.User)
-                .WithMany(c => c.Tasks);
+            //modelBuilder.Entity<Task>()
+            //    .HasOne(c => c.User)
+            //    .WithMany(c => c.Tasks);
 
         }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
         {
             //Здесь заполнение БД
-            Database.EnsureDeleted();
+            AddDB();
+
+
+        }
+
+        public void AddDB()
+        {
+                        Database.EnsureDeleted();
             Database.EnsureCreated();
 
             Department op1 = new Department { Name = "ОП-1 Екатеринбург" };
             Department op2 = new Department { Name = "ОП-2 Нижневартовск" };
 
-            User user1 = new User { UserName = "Попов В.В.", isSupervisor = false, Department = op1, Login="popov_vv" };
-            User user2 = new User { UserName = "Баранов А.А.", isSupervisor = false, Department = op1, Login = "baranov_vv" };
-            User user3 = new User { UserName = "Козлов Н.Н", isSupervisor = true, Department = op1, Login = "kozlov_nn" };
-            User user4 = new User { UserName = "Васильев К.К", isSupervisor= false, Department = op2, Login = "vasilev_kk" };
-            User user5 = new User { UserName = "Петров Д.Д.", isSupervisor = false, Department = op2, Login = "petrov_dd" };
+            User user1 = new User { UserName = "Попов В.В.", isSupervisor = false, Department = op1, Login="popov_vv", Code = 111111 };
+            User user2 = new User { UserName = "Баранов А.А.", isSupervisor = false, Department = op1, Login = "baranov_vv", Code = 222222 };
+            User user3 = new User { UserName = "Козлов Н.Н", isSupervisor = true, Department = op1, Login = "kozlov_nn", Code = 333333 };
+            User user4 = new User { UserName = "Васильев К.К", isSupervisor= false, Department = op2, Login = "vasilev_kk", Code = 444444 };
+            User user5 = new User { UserName = "Петров Д.Д.", isSupervisor = false, Department = op2, Login = "petrov_dd", Code = 555555 };
 
             Partner part1 = new Partner { Name = "ООО Восход" };
             Partner part2 = new Partner { Name = "ИП Пупкин Г.Н" };
@@ -85,7 +92,7 @@ namespace etmDiaryApi.Models
                 , User = user2
                 , Description = "Получить документацию по проекту"};
             Task task4 = new Task { Start = new DateTime(2023, 1, 31)
-                , End = new DateTime(2023,1, 31)
+                , End = new DateTime(2023,2, 10)
                 , Board=board1
                 , Condition = cond3
                 , Priority = 3
@@ -149,7 +156,6 @@ namespace etmDiaryApi.Models
 
             SaveChanges();
             Console.WriteLine("Данные внесены");
-
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
