@@ -30,7 +30,7 @@ namespace etmDiaryApi.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
         {
             //Здесь заполнение БД
-            AddDB();
+            //AddDB();
 
 
         }

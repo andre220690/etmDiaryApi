@@ -11,10 +11,12 @@ namespace etmDiaryApi.Controllers
     public class DiaryController : ControllerBase
     {
         ApplicationDbContext db;
+        private readonly ILogger _logger;
 
-        public DiaryController(ApplicationDbContext db)
+        public DiaryController(ApplicationDbContext db, ILogger<DiaryController> logger)
         {
             this.db = db;
+            _logger = logger;
         }
 
 
@@ -22,13 +24,13 @@ namespace etmDiaryApi.Controllers
         //Параметры - дата начала, дата конец(интервал отображения), подразделение, сотрудник, состояние задачи
         //Формат даты - 12/01/2023 - но не обязательно, парсит и другие
         [HttpGet("ListTasks")]
-        public async Task<IEnumerable> GetLsitTasks(string date1="01/01/2023", string date2="30/01/2023", string department= "all", int userCode = 0 , string condition="all")
+        public async Task<IEnumerable> GetLsitTasks(string date1, string date2, string department= "all", int userCode = 0 , string condition="all")
         {
             var d1 = DateTime.Parse(date1);
             var d2 = DateTime.Parse(date2);
 
-            List<Models.Task> list = null;
 
+            List<Models.Task> list = null;
             if (userCode != 0)
             {
                 list = await db.Tasks
@@ -61,7 +63,7 @@ namespace etmDiaryApi.Controllers
             {
                 list = list.Where(p => p.Condition.Name == condition).ToList();
             }
-            
+
             return list.Select(j => new
             {
                 id = j.Id,
@@ -73,14 +75,58 @@ namespace etmDiaryApi.Controllers
                 priority = j.Priority,
                 description = j.Description
             }).ToArray();
-            //return x;
         }
 
         //Запрос на Получение задачи
+        [HttpGet("Task")]
+        public async Task<Object> GetTask(int TaskId)
+        {
+            var result = await db.Tasks
+                .Include(u => u.Theme)
+                .Include(u => u.User)
+                .Include(u => u.Partner)
+                .Include(u => u.Condition)
+                .FirstOrDefaultAsync(i => i.Id == TaskId);
+
+            return new
+            {
+                Id = result.Id,
+                Start = result.Start.ToString("d"),
+                End = result.End.ToString("d"),
+                Priority = result.Priority,
+                Theme = result.Theme.Name,
+                Partner = result.Partner.Name,
+                User = result.User.UserName,
+                Description = result.Description,
+                Condition = result.Condition.Name,
+                Result = result.Result
+            };
+        }
 
         //Запрос на Получение списка пользователей
+        [HttpGet("ListUsers")]
+        public async Task<IEnumerable> GetListUsers(string line)
+        {
+            var result = await db.Users.Where(u => u.UserName.Contains(line)).ToListAsync();
+            return result.Select(j => new
+            {
+                UserName = j.UserName,
+                Code = j.Code
+            });
+        }
 
         //Запрос на Получение списка партнеров
+        [HttpGet("ListParters")]
+        public async Task<IEnumerable> GetListParters(string line)
+        {
+            var result = await db.Partners.Where(u => u.Name.Contains(line)).ToListAsync();
+            return result.Select(j => new
+            {
+                UserName = j.Name,
+                id = j.Id
+            });
+        }
+
 
         //Запрос на Получение списка тем задач
 
