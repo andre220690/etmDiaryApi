@@ -30,7 +30,7 @@ namespace etmDiaryApi.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
         {
             //Здесь заполнение БД
-            //AddDB();
+            AddDB();
 
 
         }
@@ -55,14 +55,16 @@ namespace etmDiaryApi.Models
 
             Theme theme1 = new Theme { Name = "Освоение потенциала клиента" };
             Theme theme2 = new Theme { Name = "Работа с ДЗ" };
+            Theme theme3 = new Theme { Name = "Работа с Доской" };
+
 
             Condition cond1 = new Condition { Name = "Выполнено. Успех" };
             Condition cond2 = new Condition { Name = "Выполнено. Неудачно" };
             Condition cond3 = new Condition { Name = "Назначено" };
             Condition cond4 = new Condition { Name = "Просрочено" };
 
-            Board board1 = new Board { Sample = "Сделать;В процессе;Выполнено" };
-            Board board2 = new Board { Sample = "Сделать;Отправить предложение;Получена ОС;Выполнено" };
+            Board board1 = new Board { Sample = "Сделать|В процессе|Выполнено" };
+            Board board2 = new Board { Sample = "Сделать|Отправить предложение|Получена ОС|Выполнено" };
 
             Task task1 = new Task { Start = new DateTime(2023, 1, 1)
                 , End = new DateTime(2023,1, 31)
@@ -72,6 +74,7 @@ namespace etmDiaryApi.Models
                 , Theme = theme1
                 , Partner = part1
                 , User = user1
+                , History = "1/12/2022 14:54 - Сделал что-то|21/1/2023 09:12 - Пошел на обед|22/2/2023 11:11 - Сделал дела. Сделал дела, сделал дела - сделал дела"
                 , Description = "Заведение новой продукции в ассортимент клиента"};
             Task task2 = new Task { Start = new DateTime(2022, 12, 15)
                 , End = new DateTime(2023, 2, 16)
@@ -105,30 +108,35 @@ namespace etmDiaryApi.Models
                 , Board = board2
                 , Date = new DateTime(2023, 1, 15)
                 , Description = "Предложение по арматуре"
-                , Status = 1
+                , NameStatus = "Отправить предложение"
+                , NumStatus = 1
                 , Task = task1};
             Stick stick2 = new Stick { User = user1
                 , Board = board2
                 , Date = new DateTime(2023, 1, 19)
                 , Description = "Предложение по кабелю"
-                , Status = 0
+                , NumStatus = 0
+                , NameStatus = "Сделать"
                 , Task = task1};
             Stick stick3 = new Stick { User = user4
                 , Board = board1
                 , Date = new DateTime(2023, 1, 31)
                 , Description = "Передать претензию клиенту"
-                , Status = 2
+                , NameStatus = "Выполнено"
+                , NumStatus = 2
                 , Task = task4};
             Stick stick4 = new Stick { User = user1
                 , Board = board1
                 , Date = new DateTime(2023, 1, 15)
                 , Description = "Составить план развития"
-                , Status = 0};
+                , NameStatus = "Сделать"
+                , NumStatus = 0};
             Stick stick5 = new Stick { User = user1
                 , Board = board1
                 , Date = new DateTime(2023, 1, 15)
                 , Description = "Заполнить отчет"
-                , Status = 1};
+                , NameStatus = "В процессе"
+                , NumStatus = 1};
 
             FavoritSticks fs1 = new FavoritSticks { User = user1, Stick = stick1 };
             FavoritSticks fs2 = new FavoritSticks { User = user3, Stick = stick2 };
@@ -140,7 +148,7 @@ namespace etmDiaryApi.Models
             Departments.AddRange(op1, op2);
             Users.AddRange(user1, user2, user3, user4, user5);
             Partners.AddRange(part1, part2, part3);
-            Themes.AddRange(theme1, theme2);
+            Themes.AddRange(theme1, theme2, theme3);
             Conditions.AddRange(cond1, cond2, cond3, cond4);
             Boards.AddRange(board1, board2);
 

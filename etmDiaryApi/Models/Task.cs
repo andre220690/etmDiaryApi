@@ -15,13 +15,13 @@ namespace etmDiaryApi.Models
         public string? History { get; set; }
         public int ThemeId { get; set; }
         public Theme? Theme { get; set; }
-        public int PartnerId { get; set; }
+        public int? PartnerId { get; set; }
         public Partner? Partner { get; set; }
         public int? UserId { get; set; }
         public User? User { get; set; }
         public int ConditionId { get; set; }
         public Condition Condition { get; set; }
-        public int BoardId { get; set; }
+        public int BoardId { get; set; } = 1;
         public Board Board { get; set; }
         public List<Stick> Sticks { get; set; }
         public List<User> Users { get; set; }
