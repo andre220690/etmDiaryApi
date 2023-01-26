@@ -24,7 +24,6 @@ namespace etmDiaryApi.Models
         public int BoardId { get; set; } = 1;
         public Board Board { get; set; }
         public List<Stick> Sticks { get; set; }
-        public List<User> Users { get; set; }
         //public int FavoritTasksId { get; set; }
         public List<FavoritTasks> FavoritTasks { get; set; }
     }

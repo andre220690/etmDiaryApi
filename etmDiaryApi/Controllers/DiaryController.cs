@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections;
+using System.Linq;
 
 namespace etmDiaryApi.Controllers
 {
@@ -326,17 +327,316 @@ namespace etmDiaryApi.Controllers
         }
 
         //Создание стика 
+        [HttpPost("AddStick")]
+        public async Task<IActionResult> PostAddStick(StickTransfer stick)
+        {
+            var user = await db.Users.Where(u => u.Code == stick.UserCode).FirstOrDefaultAsync();
+            Stick newStick = new Stick
+            {
+                Description = stick.Description,
+                Date = DateTime.Now,
+                NameStatus = stick.NameStatus,
+                TaskId = stick.TaskId,
+                BoardId = stick.BoardId,
+                User = user
+            };
+            db.Sticks.Add(newStick);
+            int result = await db.SaveChangesAsync();
+            return Ok(result);
+        }
 
         //Изменение стика
+        [HttpGet("StickRefrash")]
+        public async Task<IActionResult> GetStickRefrash(int StickId, int status, bool? isSeccessful = null)
+        {
+            var stick = await db.Sticks.FindAsync(StickId);
+            stick.NumStatus = status;
+            stick.Date = DateTime.Now;
+            if(isSeccessful != null)
+            {
+                stick.isSuccessful = isSeccessful;
+            }
+            var result = await db.SaveChangesAsync();
+            return Ok(result);
+        }
 
-        //Запрос для получения отчета
+        //Запрос для получения отчета - лучше переписать, наприме через linq expression
+        [HttpGet("Report")]
+        public async Task<Object> GetReport(string date1, string date2, int userCode = 0, int department = 0)
+        {
+            var start = DateTime.Parse(date1);
+            var end = DateTime.Parse(date2);
+
+            if (userCode != 0)
+            {
+                int seccessfulTask = 0;
+                int countTask = 0;
+                int inWorkTask = 0;
+
+                var Tasks = await db.Tasks
+                    .Include(u => db.Users)
+                    .Where(u => u.User.Code == userCode)
+                    .Where(u => u.Start <= end && u.End >= start)
+                    .Select(u => new
+                    {
+                        status = u.ConditionId
+                    }).ToArrayAsync();
+
+                countTask = Tasks.Length;
+                seccessfulTask = Tasks.Where(u => u.status == 1 || u.status == 2).Count();
+                inWorkTask = countTask - seccessfulTask;
+
+                int seccessfulStick = 0;
+                int doWorkStick = 0;
+                int countStick = 0;
+                int inWorkStick = 0;
+
+                var Sticks = await db.Sticks
+                    .Include(u => db.Users)
+                    .Where(u => u.User.Code == userCode)
+                    .Where(u => u.Date >= start && u.Date <= end)
+                    .Select(u => new
+                    {
+                        status = u.NumStatus,
+                        isFinal = u.isSuccessful
+                    }).ToArrayAsync();
+
+                countStick = Sticks.Length;
+                foreach(var i in Sticks)
+                {
+                    if (i.status == 0)
+                    {
+                        doWorkStick++;
+                    }else if (i.isFinal != null)
+                    {
+                        seccessfulStick++;
+                    }
+                }
+                inWorkStick = countStick - seccessfulStick - doWorkStick;
+
+                var TasksResult = new
+                {
+                    count = countTask,
+                    seccessful = seccessfulTask,
+                    inWork = inWorkTask
+                };
+                var StickResult = new
+                {
+                    count = countStick,
+                    seccessful = seccessfulStick,
+                    inWork = inWorkStick,
+                    doWorkStick = doWorkStick
+                };
+                return new
+                {
+                    Tasks = TasksResult,
+                    Sticks = StickResult
+                };
+            }
+            else if(department != 0)
+            {
+                int seccessfulTask = 0;
+                int countTask = 0;
+                int inWorkTask = 0;
+
+                var Tasks = await db.Tasks
+                    .Include(u => db.Users)
+                    .Where(u => u.User.DepartmentId == department)
+                    .Where(u => u.Start <= end && u.End >= start)
+                    .Select(u => new
+                    {
+                        status = u.ConditionId
+                    }).ToArrayAsync();
+
+                countTask = Tasks.Length;
+                seccessfulTask = Tasks.Where(u => u.status == 1 || u.status == 2).Count();
+                inWorkTask = countTask - seccessfulTask;
+
+                int seccessfulStick = 0;
+                int doWorkStick = 0;
+                int countStick = 0;
+                int inWorkStick = 0;
+
+                var Sticks = await db.Sticks
+                    .Include(u => db.Users)
+                    .Where(u => u.User.DepartmentId == department)
+                    .Where(u => u.Date >= start && u.Date <= end)
+                    .Select(u => new
+                    {
+                        status = u.NumStatus,
+                        isFinal = u.isSuccessful
+                    }).ToArrayAsync();
+
+                countStick = Sticks.Length;
+                foreach (var i in Sticks)
+                {
+                    if (i.status == 0)
+                    {
+                        doWorkStick++;
+                    }
+                    else if (i.isFinal != null)
+                    {
+                        seccessfulStick++;
+                    }
+                }
+                inWorkStick = countStick - seccessfulStick - doWorkStick;
+
+                var TasksResult = new
+                {
+                    count = countTask,
+                    seccessful = seccessfulTask,
+                    inWork = inWorkTask
+                };
+                var StickResult = new
+                {
+                    count = countStick,
+                    seccessful = seccessfulStick,
+                    inWork = inWorkStick,
+                    doWorkStick = doWorkStick
+                };
+                return new
+                {
+                    Tasks = TasksResult,
+                    Sticks = StickResult
+                };
+            }
+            else
+            {
+                int seccessfulTask = 0;
+                int countTask = 0;
+                int inWorkTask = 0;
+
+                var Tasks = await db.Tasks
+                    .Where(u => u.Start <= end && u.End >= start)
+                    .Select(u => new
+                    {
+                        id = u.Id,
+                        status = u.ConditionId
+                    }).ToArrayAsync();
+
+                countTask = Tasks.Length;
+                seccessfulTask = Tasks.Where(u => u.status == 1 || u.status == 2).Count();
+                inWorkTask = countTask - seccessfulTask;
+
+                int seccessfulStick = 0;
+                int doWorkStick = 0;
+                int countStick = 0;
+                int inWorkStick = 0;
+
+                var Sticks = await db.Sticks
+                    .Where(u => u.Date >= start && u.Date <= end)
+                    .Select(u => new
+                    {
+                        id = u.Id,
+                        status = u.NumStatus,
+                        isFinal = u.isSuccessful
+                    }).ToArrayAsync();
+
+                countStick = Sticks.Length;
+                foreach (var i in Sticks)
+                {
+                    if (i.status == 0)
+                    {
+                        doWorkStick++;
+                    }
+                    else if (i.isFinal != null)
+                    {
+                        seccessfulStick++;
+                    }
+                }
+                inWorkStick = countStick - seccessfulStick - doWorkStick;
+
+                var TasksResult = new
+                {
+                    count = countTask,
+                    seccessful = seccessfulTask,
+                    inWork = inWorkTask
+                };
+                var StickResult = new
+                {
+                    count = countStick,
+                    seccessful = seccessfulStick,
+                    inWork = inWorkStick,
+                    doWorkStick = doWorkStick
+                };
+                return new
+                {
+                    Tasks = TasksResult,
+                    Sticks = StickResult
+                };
+            }
+        }
 
         //Получение избранных задач
+        [HttpGet("Favorits")]
+        public async Task<Object> GetFavorits(int userCode)
+        {
+            var favoritTasks = await db.Users
+                .Where(u => u.Code == userCode)
+                .Join(db.FavoritTasks, p => p.Id, c => c.UserId, (p, c) => new
+                {
+                    Username = p.UserName,
+                    Priority = c.Task.Priority,
+                    Department = p.Department.Name,
+                    DateStart = c.Task.Start.ToString("d"),
+                    DateEnd = c.Task.End.ToString("d"),
+                    Status = c.Task.Condition.Name,
+                    Description = c.Task.Description
+                }).ToListAsync();
 
+            var favoritSticks = await db.Users
+                .Where(u => u.Code == userCode)
+                .Join(db.FavoritSticks, p => p.Id, c => c.UserId, (p, c) => new
+                {
+                    Username = p.UserName,
+                    Priority = "-",
+                    Department = p.Department.Name,
+                    DateStart = c.Stick.Date.ToString("d"),
+                    DateEnd = "-",
+                    Status = c.Stick.NameStatus,
+                    Description = c.Stick.Description
+                }).ToListAsync();
+
+            return new
+            {
+                FavoritSticks = favoritSticks,
+                FavoritTasks = favoritTasks
+            };
+        }
+ 
         //Добавление избранную задачу таск
+        [HttpGet("AddFavoritTask")]
+        public async Task<IActionResult> GetAddFavoritTask(int userCode, int TaskId)
+        {
+            var user = await db.Users.Where(u => u.Code == userCode).FirstAsync();
+            var task = await db.Tasks.FindAsync(TaskId);
+
+            FavoritTasks ft = new FavoritTasks
+            {
+                User = user,
+                Task = task
+            };
+            db.FavoritTasks.Add(ft);
+            var result = await db.SaveChangesAsync();
+            return Ok(result);
+        }
 
         //Добавление избранную задачу стик
+        [HttpGet("AddFavoritStick")]
+        public async Task<IActionResult> GetddFavoritStick(int userCode, int StickId)
+        {
+            var user = await db.Users.Where(u => u.Code == userCode).FirstAsync();
+            var stick = await db.Sticks.FindAsync(StickId);
 
-        //получение и сохранение комментариев???
+            FavoritSticks fs = new FavoritSticks
+            {
+                User = user,
+                Stick = stick
+            };
+            db.FavoritSticks.Add(fs);
+            var result = await db.SaveChangesAsync();
+            return Ok(result);
+        }
+
     }
 }
