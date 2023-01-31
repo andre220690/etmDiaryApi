@@ -25,14 +25,14 @@ namespace etmDiaryApi.Controllers
         //Параметры - дата начала, дата конец(интервал отображения), подразделение, сотрудник, состояние задачи
         //Формат даты - 12/01/2023 - но не обязательно, парсит и другие
         [HttpGet("ListTasks")]
-        public async Task<IEnumerable> GetLsitTasks(string date1, string date2, string department= "all", int userCode = 0 , string condition="all")
+        public async Task<IEnumerable> GetLsitTasks(string date1, string date2, string? department, int? userCode, string? condition)
         {
             var d1 = DateTime.Parse(date1);
             var d2 = DateTime.Parse(date2);
 
 
             List<Models.Task> list = null;
-            if (userCode != 0)
+            if (userCode != null)
             {
                 list = await db.Tasks
                 .Where(p => (p.Start <= d2 && p.End >= d1) && (p.User.Code == userCode))
@@ -41,7 +41,7 @@ namespace etmDiaryApi.Controllers
                 .Include(u => u.Condition)
                 .Take(20).ToListAsync();
             }
-            else if (department != "all")
+            else if (department != null)
             {
                 list = await db.Tasks
                 .Where(p => (p.Start <= d2 && p.End >= d1) && (p.User.Department.Name == department))
@@ -60,7 +60,7 @@ namespace etmDiaryApi.Controllers
                 .Take(20).ToListAsync();
             }
 
-            if (condition != "all")
+            if (condition != null)
             {
                 list = list.Where(p => p.Condition.Name == condition).ToList();
             }
@@ -274,7 +274,8 @@ namespace etmDiaryApi.Controllers
                     Id = c.Id,
                     Description = c.Description,
                     NumStatus = c.NumStatus,
-                    TaskId = c.TaskId
+                    TaskId = c.TaskId,
+                    isSuccessful = c.isSuccessful
                 })
                 .Where(u => u.TaskId == null)
                 .ToArrayAsync();
@@ -362,12 +363,12 @@ namespace etmDiaryApi.Controllers
 
         //Запрос для получения отчета - лучше переписать, наприме через linq expression
         [HttpGet("Report")]
-        public async Task<Object> GetReport(string date1, string date2, int userCode = 0, int department = 0)
+        public async Task<Object> GetReport(string date1, string date2, int? userCode, int? department)
         {
             var start = DateTime.Parse(date1);
             var end = DateTime.Parse(date2);
 
-            if (userCode != 0)
+            if (userCode != null)
             {
                 int seccessfulTask = 0;
                 int countTask = 0;
@@ -433,7 +434,7 @@ namespace etmDiaryApi.Controllers
                     Sticks = StickResult
                 };
             }
-            else if(department != 0)
+            else if(department != null)
             {
                 int seccessfulTask = 0;
                 int countTask = 0;

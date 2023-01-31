@@ -2,6 +2,7 @@ using etmDiaryApi.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+string MySpecificOrigins = "_mySpecificOrigins";
 
 // Add services to the container.
 
@@ -11,6 +12,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
         .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MySpecificOrigins,
+        builder =>
+        {
+                    //builder.WithOrigins("http://localhost:3000");
+                    builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 
 var app = builder.Build();
 
@@ -22,6 +34,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+app.UseCors(MySpecificOrigins);
 
 app.MapControllers();
 
