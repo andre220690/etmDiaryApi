@@ -70,7 +70,7 @@ namespace etmDiaryApi.Controllers
                 id = j.Id,
                 dateStart = j.Start.ToString("d"),
                 dateEnd = j.End.ToString("d"),
-                pertner = j.Partner.Name,
+                partner = j.Partner.Name,
                 user = j.User.UserName,
                 userCode = j.User.Code,
                 priority = j.Priority,
@@ -116,14 +116,26 @@ namespace etmDiaryApi.Controllers
             });
         }
 
+        //Запрос на Получение списка отделов
+        [HttpGet("ListDepartments")]
+        public async Task<IEnumerable> GetListDepartments(string line)
+        {
+            var result = await db.Departments.Where(u => u.Name.Contains(line)).ToListAsync();
+            return result.Select(j => new
+            {
+                Department = j.Name,
+                Id = j.Id
+            });
+        }
+
         //Запрос на Получение списка партнеров
-        [HttpGet("ListParters")]
-        public async Task<IEnumerable> GetListParters(string line)
+        [HttpGet("ListPartners")]
+        public async Task<IEnumerable> GetListPartners(string line)
         {
             var result = await db.Partners.Where(u => u.Name.Contains(line)).ToListAsync();
             return result.Select(j => new
             {
-                UserName = j.Name,
+                Name = j.Name,
                 id = j.Id
             });
         }
@@ -167,17 +179,24 @@ namespace etmDiaryApi.Controllers
         [HttpPost("SaveTask")]
         public async Task<IActionResult> PostSaveTask(TaskTransfer request)
         {
-            if(request.Id == null)
+            var userId = await db.Users.Where(u => u.Code == request.UserId).FirstAsync();
+            var d1 = DateTime.Parse(request.Start);
+            var d2 = DateTime.Parse(request.End);
+
+            if (userId == null)
+                return NotFound();
+
+            if (request.Id == null)
             {
                 Models.Task newTask = new Models.Task
                 {
-                    Start = request.Start,
-                    End = request.End,
+                    Start = d1,
+                    End = d2,
                     Priority = request.Priority,
                     Description = request.Description,
                     ThemeId = request.ThemeId,
                     PartnerId = request.PartnerId,
-                    UserId = request.UserId,
+                    UserId = userId.Id,
                     ConditionId = request.ConditionId
                 };
                 db.Tasks.Add(newTask);
@@ -186,13 +205,14 @@ namespace etmDiaryApi.Controllers
             }
             else
             {
+                //меняем не все данные
                 var task = db.Tasks.Find(request.Id);
-                task.End = request.End;
+                task.End = d2;
                 task.Priority = request.Priority;
                 task.Description = request.Description;
                 task.ThemeId = request.ThemeId;
                 task.PartnerId = request.PartnerId;
-                task.UserId = request.UserId;
+                task.UserId = userId.Id;
                 task.ConditionId = request.ConditionId;
                 task.Result = request.Result;
                 int result = await db.SaveChangesAsync();
@@ -375,7 +395,7 @@ namespace etmDiaryApi.Controllers
                 int inWorkTask = 0;
 
                 var Tasks = await db.Tasks
-                    .Include(u => db.Users)
+                    //.Include(u => db.Users)
                     .Where(u => u.User.Code == userCode)
                     .Where(u => u.Start <= end && u.End >= start)
                     .Select(u => new
@@ -393,7 +413,7 @@ namespace etmDiaryApi.Controllers
                 int inWorkStick = 0;
 
                 var Sticks = await db.Sticks
-                    .Include(u => db.Users)
+                    //.Include(u => db.Users)
                     .Where(u => u.User.Code == userCode)
                     .Where(u => u.Date >= start && u.Date <= end)
                     .Select(u => new
@@ -441,7 +461,6 @@ namespace etmDiaryApi.Controllers
                 int inWorkTask = 0;
 
                 var Tasks = await db.Tasks
-                    .Include(u => db.Users)
                     .Where(u => u.User.DepartmentId == department)
                     .Where(u => u.Start <= end && u.End >= start)
                     .Select(u => new
@@ -459,7 +478,6 @@ namespace etmDiaryApi.Controllers
                 int inWorkStick = 0;
 
                 var Sticks = await db.Sticks
-                    .Include(u => db.Users)
                     .Where(u => u.User.DepartmentId == department)
                     .Where(u => u.Date >= start && u.Date <= end)
                     .Select(u => new
@@ -570,13 +588,15 @@ namespace etmDiaryApi.Controllers
 
         //Получение избранных задач
         [HttpGet("Favorits")]
-        public async Task<Object> GetFavorits(int userCode)
+        public async Task<IEnumerable> GetFavorits(int userCode)
         {
             var favoritTasks = await db.Users
                 .Where(u => u.Code == userCode)
                 .Join(db.FavoritTasks, p => p.Id, c => c.UserId, (p, c) => new
                 {
-                    Username = p.UserName,
+                    Id = c.Id,
+                    UserName = p.UserName,
+                    Type = "task",
                     Priority = c.Task.Priority,
                     Department = p.Department.Name,
                     DateStart = c.Task.Start.ToString("d"),
@@ -588,8 +608,10 @@ namespace etmDiaryApi.Controllers
             var favoritSticks = await db.Users
                 .Where(u => u.Code == userCode)
                 .Join(db.FavoritSticks, p => p.Id, c => c.UserId, (p, c) => new
-                {
-                    Username = p.UserName,
+                {   
+                    Id = c.Id,
+                    UserName = p.UserName,
+                    Type = "stick",
                     Priority = "-",
                     Department = p.Department.Name,
                     DateStart = c.Stick.Date.ToString("d"),
@@ -598,10 +620,11 @@ namespace etmDiaryApi.Controllers
                     Description = c.Stick.Description
                 }).ToListAsync();
 
-            return new
+
+            return new List<Object>
             {
-                FavoritSticks = favoritSticks,
-                FavoritTasks = favoritTasks
+                favoritSticks,
+                favoritTasks
             };
         }
  
