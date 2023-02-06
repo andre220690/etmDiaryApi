@@ -230,7 +230,7 @@ namespace etmDiaryApi.Controllers
             var date = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
             if (task.History != null)
             {
-                string text = task.History + "|"+ date + " - " + line;
+                string text = task.History + "|"+ date + ": " + line;
                 task.History = text;
             }
             else
