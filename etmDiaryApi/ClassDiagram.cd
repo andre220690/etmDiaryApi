@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="etmDiaryApi.Models.Board">
+    <Position X="9.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAABAgAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\Board.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Condition" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\Condition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Department" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACACAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Department.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="etmDiaryApi.Models.FavoritSticks">
+    <Position X="2.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAgAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\FavoritSticks.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Stick" />
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="etmDiaryApi.Models.FavoritTasks">
+    <Position X="3" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAAAAAAAAAAAAAAAgAAAgAAAAAAEAAAAAAAAA=</HashCode>
+      <FileName>Models\FavoritTasks.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Task" />
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Partner" Collapsed="true">
+    <Position X="2.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\Partner.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Stick">
+    <Position X="4.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAADAAAAIAAgAAAAAwAAAAgAgAgAAAABAEAAAKAAAAA=</HashCode>
+      <FileName>Models\Stick.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Task" />
+      <Property Name="Board" />
+      <Property Name="User" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Task">
+    <Position X="7" Y="2.75" Width="1.5" />
+    <AssociationLine Name="Theme" Type="etmDiaryApi.Models.Theme" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.312" Y="2.75" />
+        <Point X="7.312" Y="0.781" />
+        <Point X="7" Y="0.781" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Partner" Type="etmDiaryApi.Models.Partner" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7" Y="3.125" />
+        <Point X="4.931" Y="3.125" />
+        <Point X="4.931" Y="0.783" />
+        <Point X="4" Y="0.783" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAIDAAAAACClAQAUAAAAAAwAgAAAAAAAAAACACAEAAg=</HashCode>
+      <FileName>Models\Task.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Theme" />
+      <Property Name="Partner" />
+      <Property Name="User" />
+      <Property Name="Condition" />
+      <Property Name="Board" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="etmDiaryApi.Models.Theme" Collapsed="true">
+    <Position X="5.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Models\Theme.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="etmDiaryApi.Models.User" Collapsed="true">
+    <Position X="0.5" Y="4" Width="1.5" />
+    <AssociationLine Name="Department" Type="etmDiaryApi.Models.Department" FixedFromPoint="true">
+      <Path>
+        <Point X="0.875" Y="4" />
+        <Point X="0.875" Y="1.062" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAgQgAAQAgAAAAkAAAAAAAAQAYAAAAAAA=</HashCode>
+      <FileName>Models\User.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Department" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

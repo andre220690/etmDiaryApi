@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace etmDiaryApi.Models
+﻿namespace etmDiaryApi.Models
 {
     public class Board
     {

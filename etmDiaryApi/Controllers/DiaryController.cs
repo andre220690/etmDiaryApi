@@ -14,18 +14,17 @@ namespace etmDiaryApi.Controllers
         ApplicationDbContext db;
         private readonly ILogger _logger;
 
-        public DiaryController(ApplicationDbContext db, ILogger<DiaryController> logger)
+        public DiaryController(ApplicationDbContext db)
         {
             this.db = db;
-            _logger = logger;
         }
 
 
         //Запрос на получение Список задач на диаграмму
         //Параметры - дата начала, дата конец(интервал отображения), подразделение, сотрудник, состояние задачи
         //Формат даты - 12/01/2023 - но не обязательно, парсит и другие
-        [HttpGet("ListTasks")]
-        public async Task<IEnumerable> GetLsitTasks(string date1, string date2, string? department, int? userCode, string? condition)
+        [HttpGet("Tasks")]
+        public async Task<IEnumerable> GetTasks(string date1, string date2, string? department, int? userCode, string? condition)
         {
             var d1 = DateTime.Parse(date1);
             var d2 = DateTime.Parse(date2);
@@ -79,15 +78,15 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на Получение задачи
-        [HttpGet("Task")]
-        public async Task<Object> GetTask(int TaskId)
+        [HttpGet("Task/{id}")]
+        public async Task<Object> GetTask(int id)
         {
             var result = await db.Tasks
                 .Include(u => u.Theme)
                 .Include(u => u.User)
                 .Include(u => u.Partner)
                 .Include(u => u.Condition)
-                .FirstOrDefaultAsync(i => i.Id == TaskId);
+                .FirstOrDefaultAsync(i => i.Id == id);
 
             return new
             {
@@ -105,8 +104,8 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на Получение списка пользователей
-        [HttpGet("ListUsers")]
-        public async Task<IEnumerable> GetListUsers(string line)
+        [HttpGet("Users")]
+        public async Task<IEnumerable> GetUsers(string line)
         {
             var result = await db.Users.Where(u => u.UserName.Contains(line)).ToListAsync();
             return result.Select(j => new
@@ -117,8 +116,8 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на Получение списка отделов
-        [HttpGet("ListDepartments")]
-        public async Task<IEnumerable> GetListDepartments(string line)
+        [HttpGet("Departments")]
+        public async Task<IEnumerable> GetDepartments(string line)
         {
             var result = await db.Departments.Where(u => u.Name.Contains(line)).ToListAsync();
             return result.Select(j => new
@@ -129,8 +128,8 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на Получение списка партнеров
-        [HttpGet("ListPartners")]
-        public async Task<IEnumerable> GetListPartners(string line)
+        [HttpGet("Partners")]
+        public async Task<IEnumerable> GetPartners(string line)
         {
             var result = await db.Partners.Where(u => u.Name.Contains(line)).ToListAsync();
             return result.Select(j => new
@@ -142,8 +141,8 @@ namespace etmDiaryApi.Controllers
 
 
         //Запрос на Получение списка тем задач
-        [HttpGet("ListThemes")]
-        public async Task<IEnumerable> GetListThemes()
+        [HttpGet("Themes")]
+        public async Task<IEnumerable> GetThemes()
         {
             return await db.Themes.Select(j => new
             {
@@ -153,8 +152,8 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на Получение состояний задач
-        [HttpGet("ListConditions")]
-        public async Task<IEnumerable> GetListConditions()
+        [HttpGet("Conditions")]
+        public async Task<IEnumerable> GetConditions()
         {
             return await db.Conditions.Select(j => new
             {
@@ -164,10 +163,10 @@ namespace etmDiaryApi.Controllers
         }
 
         //запрос на получение истории
-        [HttpGet("HistoryTask")]
-        public async Task<IEnumerable> GetHistoryTask(int idTask)
+        [HttpGet("History/{id}")]
+        public async Task<IEnumerable> GetHistory(int id)
         {
-            var task = await db.Tasks.FindAsync(idTask);
+            var task = await db.Tasks.FindAsync(id);
             if(task.History!=null)
                 return task.History.Split("|").ToList();
             return null;
@@ -176,7 +175,7 @@ namespace etmDiaryApi.Controllers
         //Получение задачи. Сохранение ее в бд
         //Проблеммы с разными форматами даты. Отправляем в одном формате, принимаем в другом
         //Возможно лучьше поменять дазделение чисел в дате на точки
-        [HttpPost("SaveTask")]
+        [HttpPost("Task")]
         public async Task<IActionResult> PostSaveTask(TaskTransfer request)
         {
             var userId = await db.Users.Where(u => u.Code == request.UserId).FirstAsync();
@@ -223,10 +222,10 @@ namespace etmDiaryApi.Controllers
         }
 
         //Добавление в историю
-        [HttpGet("AddHistory")]
-        public async Task<IActionResult> GetAddHistory(int idTask, string line)
+        [HttpGet("History")]
+        public async Task<IActionResult> GetAddHistory(int id, string line)
         {
-            var task = await db.Tasks.FindAsync(idTask);
+            var task = await db.Tasks.FindAsync(id);
             var date = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
             if (task.History != null)
             {
@@ -243,15 +242,15 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на получение канбан доски с задачами
-        [HttpGet("CanbanTask")]
-        public async Task<IEnumerable> GetCanbanSample(int idTask)
+        [HttpGet("Canban/{id}")]
+        public async Task<IEnumerable> GetCanban(int id)
         {
             var canban = await db.Tasks
                 .Join(db.Boards, p => p.BoardId, c => c.Id, (p, c) => new
                 {
                     TaskId = p.Id,
                     Sample = c.Sample
-                }).Where(u => u.TaskId == idTask)
+                }).Where(u => u.TaskId == id)
                 .FirstOrDefaultAsync();
             var canbanSample = canban.Sample.Split('|');//нужно распарсить
 
@@ -259,11 +258,11 @@ namespace etmDiaryApi.Controllers
         }
 
         //Отправка доску задач на Express
-        [HttpGet("SticksOnBoardTask")]
-        public async Task<IEnumerable> GetSticksOnBoardTask(int idTask)
+        [HttpGet("Sticks/Task/{id}")]
+        public async Task<IEnumerable> GetSticks(int id)
         {
             var sticks = await db.Sticks
-                .Where(u => u.TaskId == idTask)
+                .Where(u => u.TaskId == id)
                 .Join(db.Tasks, p => p.TaskId, c => c.Id, (p, c) => new
                 {
                     Id = p.Id,
@@ -274,8 +273,8 @@ namespace etmDiaryApi.Controllers
         }
 
         //Запрос на получение достки с экспресс-задачами
-        [HttpGet("CanbanExpress")]
-        public async Task<IEnumerable> GetCanbanRxpress()
+        [HttpGet("Canban")]
+        public async Task<IEnumerable> GetCanban()
         {
             var canban = await db.Boards
                 .FindAsync(1);
@@ -284,7 +283,7 @@ namespace etmDiaryApi.Controllers
             return canbanSample.ToList();
         }
         //Отправка стиков на Express ---------- добавить дату можно
-        [HttpGet("SticksOnExpress")]
+        [HttpGet("Sticks")]
         public async Task<IEnumerable> GetSticksOnExpress(int userCode)
         {
             var sticks = await db.Users
@@ -314,8 +313,8 @@ namespace etmDiaryApi.Controllers
             {
                 Models.Task newTask = new Models.Task
                 {
-                    Start = post.Start,
-                    End = post.End,
+                    Start = DateTime.Parse(post.Start),
+                    End = DateTime.Parse(post.End),
                     Priority = 1,
                     Description = post.Descreption,
                     User = user,
@@ -348,7 +347,7 @@ namespace etmDiaryApi.Controllers
         }
 
         //Создание стика 
-        [HttpPost("AddStick")]
+        [HttpPost("Stick")]
         public async Task<IActionResult> PostAddStick(StickTransfer stick)
         {
             var user = await db.Users.Where(u => u.Code == stick.UserCode).FirstOrDefaultAsync();
@@ -367,7 +366,7 @@ namespace etmDiaryApi.Controllers
         }
 
         //Изменение стика
-        [HttpGet("StickRefrash")]
+        [HttpGet("Stick")]
         public async Task<IActionResult> GetStickRefrash(int StickId, int status, bool? isSeccessful = null)
         {
             var stick = await db.Sticks.FindAsync(StickId);
@@ -629,7 +628,7 @@ namespace etmDiaryApi.Controllers
         }
  
         //Добавление избранную задачу таск
-        [HttpGet("AddFavoritTask")]
+        [HttpGet("Favorit/Task")]
         public async Task<IActionResult> GetAddFavoritTask(int userCode, int TaskId)
         {
             var user = await db.Users.Where(u => u.Code == userCode).FirstAsync();
@@ -646,7 +645,7 @@ namespace etmDiaryApi.Controllers
         }
 
         //Добавление избранную задачу стик
-        [HttpGet("AddFavoritStick")]
+        [HttpGet("Favorit/Stick")]
         public async Task<IActionResult> GetddFavoritStick(int userCode, int StickId)
         {
             var user = await db.Users.Where(u => u.Code == userCode).FirstAsync();

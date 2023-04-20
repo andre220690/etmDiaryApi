@@ -15,27 +15,16 @@ namespace etmDiaryApi.Models
         public DbSet<FavoritSticks> FavoritSticks { get; set; }
         public DbSet<FavoritTasks> FavoritTasks { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Stick>()
-                .HasOne(c => c.User)
-                .WithMany(c => c.Sticks);//???????
-
-            //modelBuilder.Entity<Task>()
-            //    .HasOne(c => c.User)
-            //    .WithMany(c => c.Tasks);
-
-        }
-
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
         {
             //Здесь заполнение БД
-            //AddDB();
-
-
+            if (Database.EnsureCreated())
+            {
+                AddData();
+            }
         }
 
-        public void AddDB()
+        public void AddData()
         {
                         Database.EnsureDeleted();
             Database.EnsureCreated();
@@ -168,9 +157,9 @@ namespace etmDiaryApi.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //
-            //optionsBuilder.UseMySql("server=localhost;user=root;password=123456789;database=usersdb;",
-            //    new MySqlServerVersion(new Version(8, 0, 25)));
+
+            optionsBuilder.UseMySql("server=194.58.109.195;port=3306;user=root;password=123456ai;database=diary;",
+                new MySqlServerVersion(new Version(8, 0, 25)));
         }
 
     }
