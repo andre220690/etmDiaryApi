@@ -20,7 +20,7 @@ namespace etmDiaryApi.Models
             //Здесь заполнение БД
             if (Database.EnsureCreated())
             {
-                AddDB();
+                AddData();
             }
         }
 
