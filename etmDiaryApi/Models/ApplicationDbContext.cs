@@ -158,8 +158,8 @@ namespace etmDiaryApi.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            optionsBuilder.UseMySql("server=194.58.109.195;port=3306;user=root;password=123456ai;database=diary;",
-                new MySqlServerVersion(new Version(8, 0, 25)));
+            //optionsBuilder.UseMySql("server=194.58.109.195;port=3306;user=root;password=123456ai;database=diary;",
+            //    new MySqlServerVersion(new Version(8, 0, 25)));
         }
 
     }
