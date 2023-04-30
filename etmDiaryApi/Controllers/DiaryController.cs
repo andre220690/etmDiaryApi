@@ -17,8 +17,12 @@ namespace etmDiaryApi.Controllers
         public DiaryController(ApplicationDbContext db)
         {
             this.db = db;
+            History history = new History();
+            history.Date = DateTime.Now;
+            var list = db.History.ToArray();
+            db.History.Add(history);
+            db.SaveChanges();
         }
-
 
         //Запрос на получение Список задач на диаграмму
         //Параметры - дата начала, дата конец(интервал отображения), подразделение, сотрудник, состояние задачи

@@ -11,6 +11,12 @@ namespace etmDiaryApi.Models
         public DateTime End { get; set; }
         public int Priority { get; set; }
         public string Description { get; set; }
+
+        public static explicit operator Task(System.Threading.Tasks.Task v)
+        {
+            throw new NotImplementedException();
+        }
+
         public string? Result { get; set; }
         public string? History { get; set; }
         public int ThemeId { get; set; }

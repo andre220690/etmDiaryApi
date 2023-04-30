@@ -14,6 +14,7 @@ namespace etmDiaryApi.Models
         public DbSet<User> Users { get; set; }
         public DbSet<FavoritSticks> FavoritSticks { get; set; }
         public DbSet<FavoritTasks> FavoritTasks { get; set; }
+        public DbSet<History> History { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> option) : base(option)
         {
